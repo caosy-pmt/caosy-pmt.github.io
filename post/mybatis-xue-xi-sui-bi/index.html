@@ -1,0 +1,548 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title># MyBatis学习随笔 | Gridea</title>
+<link rel="shortcut icon" href="https://caosy-pmt.github.io/favicon.ico?v=1625503691220">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://caosy-pmt.github.io/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="# MyBatis学习随笔 | Gridea - Atom Feed" href="https://caosy-pmt.github.io/atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="idea常用快捷键
+1、Ctrl+D 复制当前行到下一行 
+2、Ctrl+N 查看当前类的信息; Ctrl+H实现当前类的; Ctrl+B 快速打开光标处的类或方法
+3、Alt+0(insert) 实体类快速生成相应函数 
+4、Ctrl+R..." />
+    <meta name="keywords" content="" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://caosy-pmt.github.io">
+  <img class="avatar" src="https://caosy-pmt.github.io/images/avatar.png?v=1625503691220" alt="">
+  </a>
+  <h1 class="site-title">
+    Gridea
+  </h1>
+  <p class="site-description">
+    温故而知新
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              # MyBatis学习随笔
+            </h2>
+            <div class="post-info">
+              <span>
+                2021-07-03
+              </span>
+              <span>
+                14 min read
+              </span>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <h3 id="idea常用快捷键"><em><strong>idea常用快捷键</strong></em></h3>
+<pre><code>1、Ctrl+D 复制当前行到下一行 
+2、Ctrl+N 查看当前类的信息; Ctrl+H实现当前类的; Ctrl+B 快速打开光标处的类或方法
+3、Alt+0(insert) 实体类快速生成相应函数 
+4、Ctrl+R 全局替换 
+5、Ctrl+F 查找文本
+6、Ctrl+P 方法参数提示
+7、Ctrl+X 删除行
+8、Ctrl+/ 或 Ctrl+Shift+/  注释（// 或者/*...*/ ）
+9、Ctrl+J 自动代码（常见的代码片段）
+10、Shift+F6 重命名
+11、sout 快速打出System.out.Println()
+</code></pre>
+<hr>
+<h3 id="jdbc的冗余性"><em><strong>JDBC的冗余性</strong></em></h3>
+<pre><code>public void findStudent() {
+    Connection conn = null;
+    Statement stmt = null;
+    ResultSet rs = null;
+    try {
+        //注册 mysql 驱动
+        Class.forName(&quot;com.mysql.jdbc.Driver&quot;);
+        //连接数据的基本信息 url ，username，password
+        String url = &quot;jdbc:mysql://localhost:3306/springdb&quot;;
+        String username = &quot;root&quot;;
+        String password = &quot;123456&quot;;
+        //创建连接对象
+         conn = DriverManager.getConnection(url, username, password);
+        //保存查询结果
+        List&lt;Student&gt; stuList = new ArrayList&lt;&gt;();
+        //创建 Statement, 用来执行 sql 语句
+        stmt = conn.createStatement();
+        //执行查询，创建记录集，
+        rs = stmt.executeQuery(&quot;select * from student&quot;);
+        while (rs.next()) {
+            Student stu = new Student();
+            stu.setId(rs.getInt(&quot;id&quot;));
+            stu.setName(rs.getString(&quot;name&quot;));
+            stu.setAge(rs.getInt(&quot;age&quot;));
+            //从数据库取出数据转为 Student 对象，封装到 List 集合
+            stuList.add(stu);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        try {
+            //关闭资源
+                if (rs != null)  {
+                     rs.close();
+                 }
+                if (stmt != null) {
+                    stmt.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+</code></pre>
+<hr>
+<h3 id="准备工作"><em><strong>准备工作</strong></em></h3>
+<p><strong>1、设置源根resources</strong><br>
+新建项目时，要设置源根resources,后续用于存放mybatis主配置文件，且只有为源根时，compile后target文件中才会有resources。</p>
+<p><strong>2、maven依赖</strong></p>
+<pre><code>        &lt;!-- MyBatis依赖   --&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;org.mybatis&lt;/groupId&gt;
+      &lt;artifactId&gt;mybatis&lt;/artifactId&gt;
+      &lt;version&gt;3.5.1&lt;/version&gt;
+    &lt;/dependency&gt;，
+        &lt;!-- Mysql驱动   --&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;mysql&lt;/groupId&gt;
+      &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;
+      &lt;version&gt;5.1.9&lt;/version&gt;
+    &lt;/dependency&gt;
+</code></pre>
+<p><strong>3、maven插件</strong><br>
+扫描java目录下的全部properties、xml文件--&gt;target</p>
+<pre><code>&lt;resource&gt;
+ &lt;directory&gt;src/main/java&lt;/directory&gt;&lt;!--所在的目录--&gt;
+ &lt;includes&gt;&lt;!--包括目录下的.properties,.xml 文件都会扫描到--&gt;
+ &lt;include&gt;**/*.properties&lt;/include&gt;
+ &lt;include&gt;**/*.xml&lt;/include&gt;
+ &lt;/includes&gt;
+ &lt;filtering&gt;false&lt;/filtering&gt;
+&lt;/resource&gt;
+</code></pre>
+<hr>
+<h3 id="配置文件xml"><em><strong>配置文件.xml</strong></em></h3>
+<p>😀创建数据库--&gt;实体类--&gt;Dao接口、接口里方法声明--&gt;配置文件；<br>
+😀idea的自定义代码模板：设置--&gt;编辑器--&gt;代码样式--&gt;文件和代码模板--&gt;&quot;+&quot;。</p>
+<p><strong>1、Dao 接口 Mapper 映射文件</strong></p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+&lt;!DOCTYPE mapper
+        PUBLIC &quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;
+        &quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;&gt;
+&lt;mapper namespace=&quot;同名dao接口的全限定名称&quot;&gt;
+    &lt;select id=&quot;dao接口中的方法名&quot; resultType=&quot;&quot;&gt;
+        
+    &lt;/select&gt;
+&lt;/mapper&gt;
+</code></pre>
+<p><strong>2、mybatis主配置文件</strong><br>
+😀properties文件灵活配置连接需要的数据（数据库基本信息）；<br>
+😀设置mybatis输出日志，便于调试；<br>
+😀sql mapper(sql映射文件)的位置的俩种表示：resource、package</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+&lt;!DOCTYPE configuration
+        PUBLIC &quot;-//mybatis.org//DTD Config 3.0//EN&quot;
+        &quot;http://mybatis.org/dtd/mybatis-3-config.dtd&quot;&gt;
+&lt;configuration&gt;
+
+    &lt;!--指定properties文件的位置，从类路径根开始找文件，灵活配置下面连接需要的数据--&gt;
+    &lt;properties resource=&quot;jdbc.properties&quot; /&gt;
+
+    &lt;!--settings：控制mybatis全局行为--&gt;
+    &lt;settings&gt;
+        &lt;!--mybatis输出日志--&gt;
+        &lt;setting name=&quot;logImpl&quot; value=&quot;STDOUT_LOGGING&quot;/&gt;
+    &lt;/settings&gt;
+
+    &lt;environments default=&quot;mydev&quot;&gt;
+        &lt;environment id=&quot;mydev&quot;&gt;
+            &lt;transactionManager type=&quot;JDBC&quot;/&gt;
+            &lt;dataSource type=&quot;POOLED&quot;&gt;
+                &lt;!--从jdbc.properties中得到数据库的驱动类名--&gt;
+                &lt;property name=&quot;driver&quot; value=&quot;${jdbc.driver}&quot;/&gt;
+                &lt;!--连接数据库的url字符串--&gt;
+                &lt;property name=&quot;url&quot; value=&quot;${jdbc.url}&quot;/&gt;
+                &lt;!--访问数据库的用户名--&gt;
+                &lt;property name=&quot;username&quot; value=&quot;${jdbc.user}&quot;/&gt;
+                &lt;!--密码--&gt;
+                &lt;property name=&quot;password&quot; value=&quot;${jdbc.passwd}&quot;/&gt;
+            &lt;/dataSource&gt;
+        &lt;/environment&gt;
+    &lt;/environments&gt;
+
+    &lt;!-- sql mapper(sql映射文件)的位置--&gt;
+    &lt;mappers&gt;
+        &lt;!--第一种方式：指定多个mapper文件--&gt;
+        &lt;!--&lt;mapper resource=&quot;com/bjpowernode/dao/StudentDao.xml&quot;/&gt;
+        &lt;mapper resource=&quot;com/bjpowernode/dao/OrderDao.xml&quot; /&gt;--&gt;
+
+        &lt;!--第二种方式： 使用包名
+            name: xml文件（mapper文件）所在的包名, 这个包中所有xml文件一次都能加载给mybatis
+            使用package的要求：
+             1. mapper文件名称需要和接口名称一样， 区分大小写的一样
+             2. mapper文件和dao接口需要在同一目录
+        --&gt;
+        &lt;package name=&quot;com.csy.dao&quot;/&gt;
+    &lt;/mappers&gt;
+&lt;/configuration&gt;
+
+</code></pre>
+<hr>
+<h3 id="常用代码可写一个工具类util"><em><strong>常用代码可写一个工具类util</strong></em></h3>
+<p>😀获取SqlSession对象</p>
+<pre><code>public class SqlSessionUtil {
+    //定义 SqlSessionFactory
+    private static SqlSessionFactory factory = null;
+    static {
+        //使用 静态块 创建一次 SqlSessionFactory
+        try{
+            😀String config = &quot;mybatis.xml&quot;;
+            //读取配置文件
+            InputStream in = Resources.getResourceAsStream(config);
+            //创建 SqlSessionFactory 对象
+            factory = new SqlSessionFactoryBuilder().build(in);
+        }catch (Exception e){
+            factory = null;
+            e.printStackTrace();
+        }
+    }
+    /* 获取 SqlSession 对象 */
+    public static SqlSession getSqlSession(){
+        SqlSession session = null;
+        if( factory != null){
+            session = factory.openSession();
+        }
+        return session;
+    }
+}
+</code></pre>
+<hr>
+<h3 id="动态代理"><em><strong>动态代理</strong></em></h3>
+<p><strong>1、传统的Dao开发</strong><br>
+需要创建实现类，再实现Dao接口的方法，获取SqlSession后会直接调用SqlSession中的增删改查方法，参数至少（除查外都有其他参数）为Dao接口中具体方法的全限定名称，代码冗余性极大，会有很多相似的代码。<br>
+<strong>2、动态代理</strong><br>
+会调用其getMapper(接口名.class)方法，动态生成代理对象，该对象可调用Dao接口类中与mapper文件中”id“同名的方法，去执行从mapper文件中的sql语句，并得到相应的结果对象（jdbc中的一系列操作）。以下动态代理方法：</p>
+<pre><code>public void selectAllStudentsTest(){
+        SqlSession sqlSession = SqlSessionUtil.getSqlSession();
+        StudentDao dao = sqlSession.getMapper(StudentDao.class);
+        List&lt;Student&gt; stus =dao.selectAllStudents();
+        for(Student stu:stus){
+            System.out.println(&quot;学生&quot;+stu);
+        }
+        sqlSession.close();
+    }
+</code></pre>
+<hr>
+<h3 id="mybatis传递参数"><em><strong>mybatis传递参数</strong></em></h3>
+<p>从 java 代码中把参数传递到 mapper.xml 文件。</p>
+<p><strong>1、一个简单参数</strong><br>
+使用#{id}占位符，其中id可为任意值：<br>
+<code>select * from student where id=#{StudentId}</code></p>
+<p><strong>2、多个参数</strong><br>
+（1）使用@Param<br>
+mappe文件通过使用与Dao接口方法中的相同名称的形参来使用参数，即在方法形参前面加入@Param(“自定义参数名”)，mapper 文件使用#{自定义参数名}。<br>
+😀接口方法：</p>
+<pre><code>public List&lt;Student&gt; selectStudentsByIdAndAge(@Param(&quot;studentId&quot;) int id,
+                                            @Param(&quot;studentAge&quot;) int age);
+</code></pre>
+<p>😀mapper文件：</p>
+<pre><code>    &lt;select id=&quot;selectStudentsByIdAndAge&quot; resultType=&quot;com.csy.entity.Student&quot;&gt;
+        select * from student where id&gt;#{studentId} and age&gt;#{studentAge}
+    &lt;/select&gt;
+</code></pre>
+<p>(2) 使用对象<br>
+Dao接口方法的形参为对象，此时mapper文件中的#{}中直接写该对象的相应属性<br>
+😀接口方法：</p>
+<pre><code>public int insertOneStudent(Student stu);
+</code></pre>
+<p>😀mapper文件：</p>
+<pre><code>&lt;insert id=&quot;insertOneStudent&quot; &gt;
+        insert into student(id,name,email,age) values(#{id},#{name},#{email},#{age})
+&lt;/insert&gt;
+</code></pre>
+<p><strong>3、<code>#</code>与<code>$</code>的区别</strong><br>
+（1）<code>#</code>是占位符，使用？做占位，mybatis内部调用PreparedStatement对象执行sql语句，效率高；<br>
+（2）<code>#</code>表示列的值，一般放在等号的右侧使用；<br>
+（3）<code>$</code>是字符串代理连接，把sql语句和<code>$</code>{}位置的值连接在一起组成新的语句；<br>
+（4）<code>$</code>所表示的内容是原样替换的<br>
+（5）<code>$</code>使用的sql语句，mybatis使用的是Statement对象执行sql；<br>
+（6）<code>$</code>一般是常用作替换表名、列名等，不做值的使用。<br>
+😀<code>$</code>的常规用法：<br>
+接口方法：</p>
+<pre><code>Student findByDiffField(@Param(&quot;col&quot;) String colunName,@Param(&quot;cval&quot;) Object 
+value);
+</code></pre>
+<p>mapper 文件：</p>
+<pre><code>&lt;select id=&quot;findByDiffField&quot; resultType=&quot;com.bjpowernode.domain.Student&quot;&gt;
+ select * from student where ${col} = #{cval}
+&lt;/select&gt;
+</code></pre>
+<hr>
+<h3 id="mybatis输出结果"><em><strong>mybatis输出结果</strong></em></h3>
+<p><strong>（一）resultType</strong></p>
+<p><strong>1、简单类型（int、String...)</strong></p>
+<p><strong>2、对象类型</strong></p>
+<p><strong>3、map</strong><br>
+sql 的查询结果作为 Map 的 key 和 value。推荐使用 Map&lt;Object,Object&gt;。<br>
+注意：Map 作为接口返回值，sql 语句的查询结果最多只能有一条记录。大于一条记录是错误。</p>
+<p>接口方法：<br>
+<code>Map&lt;Object,Object&gt; selectReturnMap(int id);</code></p>
+<p>mapper 文件：</p>
+<pre><code>&lt;select id=&quot;selectReturnMap&quot; resultType=&quot;java.util.HashMap&quot;&gt;
+ select * from student where id = #{studentId}
+&lt;/select&gt;
+</code></pre>
+<p>测试结果：<br>
+<code>map对象：{name=张飞, id=1003, email=zf@163.com, age=19}</code></p>
+<p><strong>（二）resultMap</strong></p>
+<p>常用于数据库列名与java类中的属性名不一致时（不常用），通常情况下我们都会将其设为一致。</p>
+<p>此处示范一下：</p>
+<p>接口方法：<br>
+`List<Student> selectUseResultMap(QueryParam param);</p>
+<p>mapper 文件：</p>
+<pre><code>&lt;!-- 创建 resultMap
+    id:自定义的唯一名称，在&lt;select&gt;使用
+    type:期望转为的 java 对象的全限定名称或别名 --&gt;
+
+&lt;resultMap id=&quot;studentMap&quot; type=&quot;com.bjpowernode.domain.Student&quot;&gt;
+    &lt;!-- 主键字段使用 id --&gt;
+    &lt;id column=&quot;id&quot; property=&quot;stuid&quot; /&gt;
+    &lt;!--非主键字段使用 result--&gt;
+    &lt;result column=&quot;name&quot; property=&quot;stuname&quot;/&gt;
+    &lt;result column=&quot;email&quot; property=&quot;stuemail&quot; /&gt;
+    &lt;result column=&quot;age&quot; property=&quot;stuage&quot; /&gt;
+&lt;/resultMap&gt;
+
+&lt;!--resultMap: resultMap 标签中的 id 属性值--&gt;
+&lt;select id=&quot;selectUseResultMap&quot; resultMap=&quot;studentMap&quot;&gt;
+    select id,name,email,age from student where name=#{queryName} or age=#
+{queryAge}
+&lt;/select&gt;
+</code></pre>
+<p>其中column为数据库列名，property为输出的java类对象的属性名。</p>
+<p>如果要使用resultType处理此种情况，可使用列别名，在sql语句中加入一些东西：<br>
+<code>select id as stuid, name as stuname,age as stuage,email as stueamil from student</code></p>
+<hr>
+<h3 id="模糊查询-like"><em><strong>模糊查询 like</strong></em></h3>
+<p><strong>1、在java代码中的参数入手</strong></p>
+<p>sql语句：<br>
+<code>select * from student where name like #{参数}</code><br>
+这里的参数例如为`“李%”。</p>
+<p><strong>2、在mapper文件的sql语句里直接加</strong></p>
+<p>sql语句：<br>
+<code>select * from student where name like #{参数} &quot;%&quot;</code><br>
+这里的参数为<code>“李”</code>,要注意使用空格隔开参数与%。</p>
+<hr>
+<h3 id="动态sql"><em><strong>动态Sql</strong></em></h3>
+<p>主要是通过常用的动态 SQL 标签有<code>&lt;if&gt;、&lt;where&gt;、&lt;foreach&gt;</code>来动态拼接sql语句。</p>
+<p><strong>1、<code>&lt;if&gt; 与 &lt;where&gt;</code></strong><br>
+<code>&lt;if&gt;</code>单独使用时最前面需要加一个恒等式，保证后面的连接词（and、or...)不会报错，所以常常会与<code>&lt;where&gt;</code>标签连用。</p>
+<p>接口方法：<br>
+<code>List&lt;Student&gt; selectStudentsSqlIf2(@Param(&quot;stuName&quot;) String name,@Param(&quot;stuAge&quot;) int age);</code></p>
+<p>单独的if-sql语句：</p>
+<pre><code>select id,name,email,age from student
+        where 1=1
+        &lt;if test=&quot;stuName != null and stuName !='' &quot;&gt;
+            and name = #{stuName}
+        &lt;/if&gt;
+        &lt;if test=&quot;stuAge &gt; 0 &quot;&gt;
+            and age &amp;gt; #{stuAge}
+        &lt;/if&gt;
+</code></pre>
+<p>上述为简单类型参数，若为对象类型参数，test中可直接使用java类的属性名，由mybatis去get。</p>
+<p>if-where Sql语句：将<code>where 恒等式（1=1）</code>改为 <code>&lt;where&gt;&lt;/where&gt;</code>包住if语句</p>
+<p><strong>2、<code>&lt;foreach&gt;</code></strong></p>
+<p>接口方法：<br>
+<code>List&lt;Student&gt; selectStudentsByForeach(List&lt;Integer&gt; idList);</code></p>
+<p>mapper 文件：</p>
+<pre><code>    &lt;select id=&quot;selectStudentsByForeach2&quot; resultType=&quot;com.csy.entity.Student&quot;&gt;
+        select id,name,email,age from student
+        &lt;if test=&quot;array.length&gt;0 &quot;&gt;
+            /*test中使用@Param可用自己设置的名称（idList）,否则只能是list、array交给mybatis自己去找集合*/
+            where id in
+            &lt;foreach collection=&quot;array&quot; item=&quot;stuId&quot; open=&quot;(&quot; close=&quot;)&quot; separator=&quot;,&quot;&gt;
+                  /*此处collection 与前面的test要一致*/
+                #{stuId}
+            &lt;/foreach&gt;
+        &lt;/if&gt;
+    &lt;/select&gt;
+</code></pre>
+<p>注意foreach各参数间用空格隔开，item=&quot;集合中的成员&quot;，open、close、separator分别表示所插入sql片段的开始、结束及分割符。</p>
+<p><strong>3、Sql代码片段</strong></p>
+<p>mapper 文件：</p>
+<pre><code>&lt;!--创建 sql 片段 id:片段的自定义名称--&gt;
+&lt;sql id=&quot;studentSql&quot;&gt;
+ select id,name,email,age from student
+&lt;/sql&gt;
+
+&lt;!-- 引用 sql 片段 --&gt;
+ &lt;include refid=&quot;studentSql&quot;/&gt; /*代替之前定义的代码片段*/
+</code></pre>
+<hr>
+<h3 id="基于-pagehelper-分页"><em><strong>基于 PageHelper 分页</strong></em></h3>
+<p><strong>1、maven坐标</strong></p>
+<pre><code>&lt;dependency&gt;
+ &lt;groupId&gt;com.github.pagehelper&lt;/groupId&gt;
+ &lt;artifactId&gt;pagehelper&lt;/artifactId&gt;
+ &lt;version&gt;5.1.10&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+<p><strong>2、加入 plugin 配置</strong></p>
+<pre><code>在&lt;environments&gt;之前加入
+&lt;plugins&gt;
+ &lt;plugin interceptor=&quot;com.github.pagehelper.PageInterceptor&quot; /&gt;
+&lt;/plugins&gt;
+</code></pre>
+<p><strong>3、用法</strong></p>
+<p>查询语句之前调用 PageHelper.startPage （,）静态方法。，紧跟在这个方法后的第一个 MyBatis 查询方法会被进行分页。</p>
+<p>//获取第 1 页，3 条内容<br>
+<code>PageHelper.startPage(1,3);</code></p>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#idea%E5%B8%B8%E7%94%A8%E5%BF%AB%E6%8D%B7%E9%94%AE"><em><strong>idea常用快捷键</strong></em></a></li>
+<li><a href="#jdbc%E7%9A%84%E5%86%97%E4%BD%99%E6%80%A7"><em><strong>JDBC的冗余性</strong></em></a></li>
+<li><a href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><em><strong>准备工作</strong></em></a></li>
+<li><a href="#%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6xml"><em><strong>配置文件.xml</strong></em></a></li>
+<li><a href="#%E5%B8%B8%E7%94%A8%E4%BB%A3%E7%A0%81%E5%8F%AF%E5%86%99%E4%B8%80%E4%B8%AA%E5%B7%A5%E5%85%B7%E7%B1%BButil"><em><strong>常用代码可写一个工具类util</strong></em></a></li>
+<li><a href="#%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86"><em><strong>动态代理</strong></em></a></li>
+<li><a href="#mybatis%E4%BC%A0%E9%80%92%E5%8F%82%E6%95%B0"><em><strong>mybatis传递参数</strong></em></a></li>
+<li><a href="#mybatis%E8%BE%93%E5%87%BA%E7%BB%93%E6%9E%9C"><em><strong>mybatis输出结果</strong></em></a></li>
+<li><a href="#%E6%A8%A1%E7%B3%8A%E6%9F%A5%E8%AF%A2-like"><em><strong>模糊查询 like</strong></em></a></li>
+<li><a href="#%E5%8A%A8%E6%80%81sql"><em><strong>动态Sql</strong></em></a></li>
+<li><a href="#%E5%9F%BA%E4%BA%8E-pagehelper-%E5%88%86%E9%A1%B5"><em><strong>基于 PageHelper 分页</strong></em></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  <a class="rss" href="https://caosy-pmt.github.io/atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>
