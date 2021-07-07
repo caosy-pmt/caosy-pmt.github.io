@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://caosy-pmt.github.io</id>
     <title>Gridea</title>
-    <updated>2021-07-05T17:17:59.881Z</updated>
+    <updated>2021-07-07T15:56:29.632Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://caosy-pmt.github.io"/>
     <link rel="self" href="https://caosy-pmt.github.io/atom.xml"/>
@@ -11,12 +11,76 @@
     <icon>https://caosy-pmt.github.io/favicon.ico</icon>
     <rights>All rights reserved 2021, Gridea</rights>
     <entry>
-        <title type="html"><![CDATA[test]]></title>
-        <id>https://caosy-pmt.github.io/post/test/</id>
-        <link href="https://caosy-pmt.github.io/post/test/">
+        <title type="html"><![CDATA[# Spring 学习随笔]]></title>
+        <id>https://caosy-pmt.github.io/post/spring-xue-xi-sui-bi/</id>
+        <link href="https://caosy-pmt.github.io/post/spring-xue-xi-sui-bi/">
         </link>
-        <updated>2021-07-05T17:17:50.000Z</updated>
-        <content type="html"><![CDATA[<p>11</p>
+        <updated>2021-07-07T09:17:08.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="第一章-对spring的总体印象"><strong>第一章、对Spring的总体印象</strong></h2>
+<p>1、Spring是一个框架，核心技术有ioc（控制反转）、aop（面向切面编程），用来代码解耦合。</p>
+<p>2、Spring是一个容器，存放的是java对象，用于对java对象的创建、管理等，我们在程序中从这<br>
+个容器获得要使用的对象。</p>
+<p>3、存放的java对象有dao类、service类、controler类、工具类，通过两种方式：<br>
+（1）xml配置，使用<code>&lt;bean&gt;</code><br>
+（2）注解</p>
+<p>4、不存放的对象有实体类（数据库）、servlet、listener、filter（放Tomcat服务器里）。</p>
+<hr>
+<h2 id="第二章-ioc控制反转"><strong>第二章、IOC控制反转</strong></h2>
+<h3 id="21-ioc的概念"><strong>2.1 ioc的概念</strong></h3>
+<p>1、IoC (Inversion of Control) : 控制反转，是一个理论、概念、思想。<br>
+控制：创建对象、给对象赋值、管理对象之间的关系；<br>
+反转：之前开发总是在程序中，开发人员直接去控制，现在将开发人员的这个控制的权限、任务都交给容器来完成、实现。</p>
+<p>2、IoC的技术实现：DI（Dependency Injection），依赖注入，只需要在程序中提供要使用的对象名称就可以， 至于对象如何在容器中创建，赋值，查找都由容器内部实现。</p>
+<hr>
+<h3 id="22-开发步骤"><strong>2.2、开发步骤</strong></h3>
+<p>引入maven依赖</p>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-context&lt;/artifactId&gt;
+    &lt;version&gt;5.2.5.RELEASE&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+<p>接口、类等的实现--&gt;resources目录--&gt;Spring配置文件（Idea自带）</p>
+<hr>
+<h3 id="23-基于xml的di"><strong>2.3、基于XML的DI</strong></h3>
+<h4 id="231-set注入">2.3.1、set注入</h4>
+<pre><code>1、首先在所构造对象的类中实现其setter()方法；
+2、使用Spring配置文件的&lt;bean/&gt;,&lt;property/&gt;标签
+***
+&lt;bean id=&quot;myschool&quot; class=&quot;com.csy.ba01.School&quot;&gt;
+    &lt;property name=&quot;name&quot; value=&quot;安大&quot;/&gt;
+    &lt;property name=&quot;address&quot; value=&quot;安徽合肥&quot;/&gt;
+&lt;/bean&gt;
+***
+</code></pre>
+<p>😀id：为该配置文件中唯一的名称，不可重起一行<code>&lt;bean/&gt;</code>用相同的id，用户自定义，用来唯一标识某对象。<br>
+😀class：该对象的全限定类名。<br>
+😀<code>&lt;property/&gt;</code>：name为类的属性名称，容器读到这里会自动调用Setter方法将(简单类型value)或者(引用类型ref)值赋给相应属性。<br>
+😀Spring容器一般会先调用无参构造函数构造一个对象，再调用Setter函数。</p>
+<h4 id="232-构造注入">2.3.2、构造注入</h4>
+<pre><code>1、首先在相应类中实现其带参构造函数，这里注意大部分情况下要同时实现无参构造，否则当同时使
+用set注入时会报错，若不写带参构造则无参构造则不必手写，系统会自动实现。
+2、使用Spring配置文件的&lt;bean/&gt;,&lt;constructor-arg/&gt;标签
+***
+&lt;bean id=&quot;myschool1&quot; class=&quot;com.csy.ba01.School&quot;&gt;
+    &lt;constructor-arg name=&quot;address&quot; value=&quot;安徽合肥&quot;/&gt;
+    &lt;constructor-arg name=&quot;name&quot; value=&quot;中科大&quot;/&gt;
+&lt;/bean&gt;
+***
+语法跟set类似
+</code></pre>
+<h4 id="233-创建对象">2.3.3、创建对象</h4>
+<p>1、容器接口和实现类<br>
+ApplicationContext 接口用于加载 Spring 的配置文件，在程序中充当“容器”的角色。其实现类有两个：ClassPathXmlApplicationContext()、FileSystemXmlApplicationContext()，通常用前者，参数为resources目录下的所需的配置文件的路径，以字符串形式。</p>
+<p>2、ApplicationContext 容器中对象的装配时机，ApplicationContext 容器，会在容器对象初始化时，将其中的所有对象一次性全部装配好。以后代码中若要使用到这些对象，只需从内存中直接获取即可。执行效率较高。但占用内存。</p>
+<pre><code>//测试
+public void test04(){
+    String resource = &quot;ba02/applicationContext.xml&quot;;
+    ApplicationContext act = new ClassPathXmlApplicationContext(resource);
+    Student stu = (Student) act.getBean(&quot;mystudent&quot;);
+    System.out.println(&quot;学生&quot;+stu);
+ }
+</code></pre>
 ]]></content>
     </entry>
     <entry>
@@ -61,7 +125,10 @@
 8、Ctrl+/ 或 Ctrl+Shift+/  注释（// 或者/*...*/ ）
 9、Ctrl+J 自动代码（常见的代码片段）
 10、Shift+F6 重命名
-11、sout 快速打出System.out.Println()
+11、sout 快速打出System.out.Println()；
+    main/psvm 快速打出public static void main（String args[])
+12、Ctrl+Alt+O 快速清除多余包、自动导包
+13、Ctrl+P 查看方法参数
 </code></pre>
 <hr>
 <h3 id="jdbc的冗余性"><em><strong>JDBC的冗余性</strong></em></h3>
