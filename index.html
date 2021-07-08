@@ -3,7 +3,7 @@
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Gridea</title>
-<link rel="shortcut icon" href="https://caosy-pmt.github.io/favicon.ico?v=1625760660059">
+<link rel="shortcut icon" href="https://caosy-pmt.github.io/favicon.ico?v=1625760796677">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
 <link rel="stylesheet" href="https://caosy-pmt.github.io/styles/main.css">
 <link rel="alternate" type="application/atom+xml" title="Gridea - Atom Feed" href="https://caosy-pmt.github.io/atom.xml">
@@ -18,7 +18,7 @@
       <div class="main-content">
         <div class="site-header">
   <a href="https://caosy-pmt.github.io">
-  <img class="avatar" src="https://caosy-pmt.github.io/images/avatar.png?v=1625760660059" alt="">
+  <img class="avatar" src="https://caosy-pmt.github.io/images/avatar.png?v=1625760796677" alt="">
   </a>
   <h1 class="site-title">
     Gridea
@@ -70,6 +70,117 @@
 
     
         <div class="post-container">
+  
+    <article class="post">
+      <a href="https://caosy-pmt.github.io/post/test1/">
+        <h2 class="post-title">test1</h2>
+      </a>
+      <div class="post-info">
+        <span>
+          2021-07-09
+        </span>
+        <span>
+          9 min read
+        </span>
+        
+      </div>
+      
+      <div class="post-abstract">
+        <h2 id="第一章-对spring的总体印象"><strong>第一章、对Spring的总体印象</strong></h2>
+<p>1、Spring是一个框架，核心技术有ioc（控制反转）、aop（面向切面编程），用来代码解耦合。</p>
+<p>2、Spring是一个容器，存放的是java对象，用于对java对象的创建、管理等，我们在程序中从这<br>
+个容器获得要使用的对象。</p>
+<p>3、存放的java对象有dao类、service类、controler类、工具类，通过两种方式：<br>
+（1）xml配置，使用<code>&lt;bean&gt;</code><br>
+（2）注解</p>
+<p>4、不存放的对象有实体类（数据库）、servlet、listener、filter（放Tomcat服务器里）。</p>
+<hr>
+<h2 id="第二章-ioc控制反转"><strong>第二章、IOC控制反转</strong></h2>
+<h3 id="21-ioc的概念"><strong>2.1 ioc的概念</strong></h3>
+<p>1、IoC (Inversion of Control) : 控制反转，是一个理论、概念、思想。<br>
+控制：创建对象、给对象赋值、管理对象之间的关系；<br>
+反转：之前开发总是在程序中，开发人员直接去控制，现在将开发人员的这个控制的权限、任务都交给容器来完成、实现。</p>
+<p>2、IoC的技术实现：DI（Dependency Injection），依赖注入，只需要在程序中提供要使用的对象名称就可以， 至于对象如何在容器中创建，赋值，查找都由容器内部实现。</p>
+<hr>
+<h3 id="22-开发步骤"><strong>2.2、开发步骤</strong></h3>
+<p>1、引入maven依赖</p>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-context&lt;/artifactId&gt;
+    &lt;version&gt;5.2.5.RELEASE&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+<p>2、接口、类等的实现--&gt;resources目录--&gt;Spring配置文件（Idea自带）--&gt;创建对象</p>
+<p>创建对象<br>
+（1）、容器接口和实现类<br>
+ApplicationContext 接口用于加载 Spring 的配置文件，在程序中充当“容器”的角色。其实现类有两个：ClassPathXmlApplicationContext()、FileSystemXmlApplicationContext()，通常用前者，参数为resources目录下的所需的配置文件的路径，以字符串形式。</p>
+<p>（2）、ApplicationContext 容器中对象的装配时机，ApplicationContext 容器，会在容器对象初<br>
+始化时，将其中的所有对象一次性全部装配好。以后代码中若要使用到这些对象，只需从内存中直接获取即<br>
+可。执行效率较高。但占用内存。</p>
+<pre><code>//测试
+public void test04(){
+    String resource = &quot;ba02/applicationContext.xml&quot;;
+    ApplicationContext act = new ClassPathXmlApplicationContext(resource);
+    Student stu = (Student) act.getBean(&quot;mystudent&quot;);
+    System.out.println(&quot;学生&quot;+stu);
+ }
+</code></pre>
+<hr>
+<h3 id="23-基于xml的di"><strong>2.3、基于XML的DI</strong></h3>
+<h4 id="231-set注入">2.3.1、set注入</h4>
+<pre><code>1、首先在所构造对象的类中实现其setter()方法；
+2、使用Spring配置文件的&lt;bean/&gt;,&lt;property/&gt;标签
+***
+&lt;bean id=&quot;myschool&quot; class=&quot;com.csy.ba01.School&quot;&gt;
+    &lt;property name=&quot;name&quot; value=&quot;安大&quot;/&gt;
+    &lt;property name=&quot;address&quot; value=&quot;安徽合肥&quot;/&gt;
+&lt;/bean&gt;
+***
+</code></pre>
+<p>😀id：为该配置文件中唯一的名称，不可重起一行<code>&lt;bean/&gt;</code>用相同的id，用户自定义，用来唯一标识某对象。<br>
+😀class：该对象的全限定类名。<br>
+😀<code>&lt;property/&gt;</code>：name为类的属性名称，容器读到这里会自动调用Setter方法将(简单类型value)或者(引用类型ref)值赋给相应属性。<br>
+😀Spring容器一般会先调用无参构造函数构造一个对象，再调用Setter函数。</p>
+<h4 id="232-构造注入">2.3.2、构造注入</h4>
+<pre><code>1、首先在相应类中实现其带参构造函数，这里注意大部分情况下要同时实现无参构造，否则当同时使
+用set注入时会报错，若不写带参构造则无参构造则不必手写，系统会自动实现。
+2、使用Spring配置文件的&lt;bean/&gt;,&lt;constructor-arg/&gt;标签
+***
+&lt;bean id=&quot;myschool1&quot; class=&quot;com.csy.ba01.School&quot;&gt;
+    &lt;constructor-arg name=&quot;address&quot; value=&quot;安徽合肥&quot;/&gt;
+    &lt;constructor-arg name=&quot;name&quot; value=&quot;中科大&quot;/&gt;
+&lt;/bean&gt;
+***
+语法跟set类似
+</code></pre>
+<h4 id="233-引用类型自动注入">2.3.3、引用类型自动注入</h4>
+<p>1、byName<br>
+在<code>&lt;bean/&gt;</code>标签中，添加autowire属性，值=&quot;byName&quot;，可实现引用类型自动注入，不必再使用<code>&lt;property/&gt;</code>标签，注意这里的引用对象的id值有要求，要求为该对象类名称的全部小写形式，如该类为School类，这里id要为school。否则构造出的对象，该引用类型为空。<br>
+<code>&lt;bean id=&quot;mystudent&quot; class=&quot;com.csy.ba01.Student&quot;autowire=&quot;byName&quot;&gt;</code></p>
+<p>2、byType<br>
+在<code>&lt;bean/&gt;</code>标签中，添加autowire属性，值=&quot;byType&quot;，作用与1相似，但是是凭类型去找相应对象的，所以当需要使用时，相应类型的对象，容器里只能有一个。</p>
+<h4 id="234-为应用指定多个spring配置文件">2.3.4、为应用指定多个Spring配置文件</h4>
+<p>当配置文件中代码过多不好管理时，可以将其分类放入多个配置文件中，再使用一个单独的不添加<code>&lt;bean/&gt;</code>标签的主配置文件进行导入，在创建容器对象时，只需要用这个主配置的路径即可。</p>
+<pre><code>&lt;!--  主配置文件 --&gt;
+&lt;import resource=&quot;classpath:ba02/spring-*.xml&quot;/&gt;
+</code></pre>
+<p>classpath为resources目录下的全限定名称。<br>
+*为相同前缀的写在一起，但主配置文件不可是“Spring-xx”，会陷入死循环导入。<br>
+可有多个import。</p>
+<hr>
+<h3 id="24-基于注解的di"><strong>2.4、基于注解的DI</strong></h3>
+<p>对于 DI 使用注解，将不再需要在 Spring 配置文件中声明 bean 实例。需要在 Spring 配置文件中配置组件扫描器，用于在指定的基本包中扫描注解。<br>
+<code>&lt;context:component-scan base-package=&quot;com.csy.ba01&quot;/&gt;</code><br>
+在配置文件中打出<code>&lt;com</code> 按回车即可。<br>
+base-package的值可以是多个，此时<br>
+第一种方法：用“，”或“；”分割，如&quot;com.csy.ba01，com.csy.ba02&quot;；<br>
+第二种方法：用父包；<br>
+第三种方法：多写几个。</p>
+<h4 id="241-定义-bean-的注解component">2.4.1 定义 Bean 的注解@Component</h4>
+<p>格式：在类名的上面一行输入：<code>@Component(value)</code>,其中value为String类型，表示bean的id的意思，若是不写，则默认id为类名的首字母小写。</p>
+
+      </div>
+    </article>
   
     <article class="post">
       <a href="https://caosy-pmt.github.io/post/test/">
