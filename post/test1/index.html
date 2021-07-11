@@ -3,10 +3,10 @@
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title># Spring学习随笔 | Gridea</title>
-<link rel="shortcut icon" href="http://localhost:4000/favicon.ico?v=1625760990727">
+<link rel="shortcut icon" href="https://caosy-pmt.github.io/favicon.ico?v=1626017715089">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
-<link rel="stylesheet" href="http://localhost:4000/styles/main.css">
-<link rel="alternate" type="application/atom+xml" title="# Spring学习随笔 | Gridea - Atom Feed" href="http://localhost:4000/atom.xml">
+<link rel="stylesheet" href="https://caosy-pmt.github.io/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="# Spring学习随笔 | Gridea - Atom Feed" href="https://caosy-pmt.github.io/atom.xml">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
 
 
@@ -23,8 +23,8 @@
     <div class="main">
       <div class="main-content">
         <div class="site-header">
-  <a href="http://localhost:4000">
-  <img class="avatar" src="http://localhost:4000/images/avatar.png?v=1625760990727" alt="">
+  <a href="https://caosy-pmt.github.io">
+  <img class="avatar" src="https://caosy-pmt.github.io/images/avatar.png?v=1626017715089" alt="">
   </a>
   <h1 class="site-title">
     Gridea
@@ -35,7 +35,7 @@
   <div class="menu-container">
     
       
-        <a href="http://localhost:4000" class="menu">
+        <a href="https://caosy-pmt.github.io" class="menu">
           首页
         </a>
       
@@ -84,7 +84,7 @@
                 2021-07-09
               </span>
               <span>
-                9 min read
+                20 min read
               </span>
               
             </div>
@@ -108,15 +108,22 @@
 <p>2、IoC的技术实现：DI（Dependency Injection），依赖注入，只需要在程序中提供要使用的对象名称就可以， 至于对象如何在容器中创建，赋值，查找都由容器内部实现。</p>
 <hr>
 <h3 id="22-开发步骤"><strong>2.2、开发步骤</strong></h3>
-<p>1、引入maven依赖</p>
+<p>实现步骤：<br>
+1.创建maven项目<br>
+2.加入maven的依赖<br>
+spring的依赖，版本5.2.5版本</p>
 <pre><code>&lt;dependency&gt;
     &lt;groupId&gt;org.springframework&lt;/groupId&gt;
     &lt;artifactId&gt;spring-context&lt;/artifactId&gt;
     &lt;version&gt;5.2.5.RELEASE&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
-<p>2、接口、类等的实现--&gt;resources目录--&gt;Spring配置文件（Idea自带）--&gt;创建对象</p>
-<p>创建对象<br>
+<p>3.创建类（接口和他的实现类，和没有使用框架一样， 就是普通的类。</p>
+<p>4.创建spring需要使用的配置文件<br>
+声明类的信息，这些类由spring创建和管理<br>
+通过spring的语法，完成属性的赋值</p>
+<p>5.测试spring创建的。<br>
+创建容器对象<br>
 （1）、容器接口和实现类<br>
 ApplicationContext 接口用于加载 Spring 的配置文件，在程序中充当“容器”的角色。其实现类有两个：ClassPathXmlApplicationContext()、FileSystemXmlApplicationContext()，通常用前者，参数为resources目录下的所需的配置文件的路径，以字符串形式。</p>
 <p>（2）、ApplicationContext 容器中对象的装配时机，ApplicationContext 容器，会在容器对象初<br>
@@ -214,6 +221,235 @@ file-encoding=&quot;utf-8&quot;，由于idea中properties文件的默认的编�
 😀配置和代码是分离的<br>
 😀在 xml 中做修改，无需编译代码，只需重启服务器即可将新的配置加载。<br>
 xml 的缺点是：编写麻烦，效率低，大型项目过于复杂。</p>
+<hr>
+<h2 id="第三章-aop面向切面编程"><strong>第三章、AOP面向切面编程</strong></h2>
+<h3 id="31-不使用aop的开发方式"><strong>3.1 不使用aop的开发方式</strong></h3>
+<p>首先我们定义目标类的接口及其方法，用于通过实现该接口并重写其方法来进行业务处理。当需要新增日志、事务功能等时，一般有几种不同的处理方式。</p>
+<h4 id="311-传统的开发">3.1.1、传统的开发</h4>
+<p>1、实现方式：直接在目标类的实现方法里修改、新增。<br>
+2、弊端：需要修改源码，涉及权限问题；代码冗余，有时候多个方法都要增添相同的代码片段，代码重复性严重；不能专注业务逻辑代码，代码可读性差。<br>
+由此，不推荐使用。可以采用动态代理方式，在不修改主业务逻辑的前提下，扩展和增强其功能。</p>
+<h4 id="312-动态代理">3.1.2、动态代理</h4>
+<p>1、实现方式<br>
+（1）jdk动态代理，使用jdk中的Proxy，Method，InvocaitonHanderl创建代理对象，给该代理增加了额外的功能。jdk动态代理要求目标类必须实现接口。<br>
+实现步骤：</p>
+<pre><code>public class MyIncationHandler implements InvocationHandler {
+
+    //目标对象
+    private Object target; //SomeServiceImpl类
+
+    public MyIncationHandler(Object target) {
+        this.target = target;
+    }
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        //通过代理对象执行方法时，会调用执行这个invoke（）
+        System.out.println(&quot;执行MyIncationHandler中的invoke()&quot;);
+        System.out.println(&quot;method名称：&quot;+method.getName());
+
+        //在目标方法之前，输出时间，增加的功能
+        ServiceTools.doLog(); 
+
+        //SomeServiceImpl.doSome()，目标类的方法
+        method.invoke(target,args); 
+
+        //在目标方法执行之后，提交事务，增加的功能
+        ServiceTools.doTrans(); 
+    }
+}
+//@Test
+//使用jdk的Proxy创建代理对象
+
+//创建目标对象
+SomeService target = new SomeServiceImpl();
+
+//创建InvocationHandler对象
+InvocationHandler handler = new MyIncationHandler(target);
+
+//使用Proxy创建代理
+SomeService proxy = (SomeService) Proxy.newProxyInstance(
+                target.getClass().getClassLoader(),
+                target.getClass().getInterfaces(),handler);
+//com.sun.proxy.$Proxy0
+System.out.println(&quot;proxy======&quot;+proxy.getClass().getName());
+//通过代理执行方法，会调用handler中的invoke（）
+proxy.doSome();
+</code></pre>
+<p>（2）cglib动态代理：第三方的工具库，创建代理对象，原理是继承。 通过继承目标类，创建子类。子类就是代理对象。 要求目标类不能是final的， 方法也不能是final的。<br>
+2、动态代理的作用：<br>
+（1）在不改变目标类源代码的基础上，增加功能；<br>
+（2）减少了代码重复<br>
+（3）目标类只需专注业务逻辑代码<br>
+（4）解耦合，实现功能分离，让业务功能和日志，事务非业务功能分离。</p>
+<h3 id="32-aop简介"><strong>3.2、AOP简介</strong></h3>
+<p>1、AOP：面向切面编程，是基于动态代理的，可以使用jdk、cglib两种代理方式。AOP就是动态代理的规范化，把动态代理的实现步骤、方式都定义好了，让开发人员以统一的方式更加方便、简洁地使用动态代理。<br>
+2、切面：给目标类新增地功能就是切面，如前文的日志、事务。<br>
+3、实现：<br>
+（1）需要在分析项目功能时，找出切面，构造切面类；<br>
+（2）合理安排切面的执行时间（在目标方法前或是后）<br>
+（3）合理安排切面的执行位置（在哪个类的哪个方法新增功能）</p>
+<h3 id="33-aop编程术语"><strong>3.3、AOP编程术语</strong></h3>
+<p>（1） 切面（Aspect）<br>
+切面泛指交叉业务逻辑，实际就是对主业务逻辑的一种增强。<br>
+（2） 连接点（JoinPoint）<br>
+连接点指可以被切面织入的具体方法。通常业务接口中的方法均为连接点。<br>
+（3） 切入点（Pointcut）<br>
+切入点指声明的一个或多个连接点的集合。通过切入点指定一组方法。<br>
+被标记为 final 的方法是不能作为连接点与切入点的。因为最终的是不能被修改的，不<br>
+能被增强的。<br>
+（4） 目标对象（Target）<br>
+目标对象指将要被增强的对象。即包含主业务逻辑的类的对 象 。<br>
+（5） 通知（Advice）<br>
+通知表示切面的执行时间。上例中的 MyInvocationHandler 就可以理解为是一种通知。换个角度来说，通知定义了增强代码切入到目标代码的时间点，是目标方法执行之前执行，还是之后执行等。通知类型不同，切入时间不同。</p>
+<p>😀切入点（Pointcut）定义切入的位置，通知（Advice）定义切入的时间。</p>
+<h3 id="34-aspectj-对-aop-的实现"><strong>3.4 AspectJ 对 AOP 的实现</strong></h3>
+<p>AspectJ 是实现AOP的一个非常好的框架。Spring本身也实现了AOP，同时其也引用了AspectJ到自己的框架，在Spring开发中一般都使用的是AspectJ的方式。<br>
+AspectJ官网地址：http://www.eclipse.org/aspectj/</p>
+<h4 id="341-aspectj-的切入点表达式">3.4.1 AspectJ 的切入点表达式</h4>
+<p>execution(访问权限? 方法返回值 包名类名?方法名(参数) 异常类型?)<br>
+后面有问号的为可省略参数，每个参数间用空格隔开。<br>
+<code>*</code>：0至任意多的字符<br>
+<code>..</code>：用在方法参数中表示任意多个参数，用在包名后表示当前包及子包的路径<br>
+<code>..</code>出现在类名中时，后面必须跟<code>*</code>，表示包、子包下的所有类。<br>
+举例：<br>
+<code>execution(public * *(..))</code>：任意公共方法。<br>
+<code>execution(* set*(..))</code> ：任何一个以“set”开始的方法。<br>
+<code>execution(* com.xyz.service.*.*(..))</code>：定义在 service 包里的任意类的任意方法。<br>
+<code>execution(* com.xyz.service..*.*(..))</code>：定义在 service 包或者子包里的任意类的任意方法。<br>
+<code>execution(* *..service.*.*(..))</code>：指定所有包下的 serivce 子包下所有类（接口）中所有方法为切入点。</p>
+<h4 id="342-使用aspectj实现aop的基本步骤">3.4.2 使用Aspectj实现aop的基本步骤</h4>
+<p>1、新建maven项目<br>
+2、加入依赖</p>
+<pre><code>&lt;!-- spring依赖--&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-context&lt;/artifactId&gt;
+    &lt;version&gt;5.2.5.RELEASE&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;!-- aspectj依赖--&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-aspects&lt;/artifactId&gt;
+    &lt;version&gt;5.2.5.RELEASE&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+<p>3、创建目标类：接口和他的实现类，为其中的方法增加功能。<br>
+4、创建切面类：普通类<br>
+（1）在类的上面加入@Aspect；<br>
+（2）在类中定义方法，方法就是切面要执行的功能代码，在方法上面加入通知注解并指定切入点表达式。<br>
+5、创建spring的配置文件：声明对象（注解或xml），把对象交给容器统一管理<br>
+（1）声明目标对象<br>
+（2）声明切面类对象<br>
+（3）声明aspectj框架中的自动代理生成器标签。<br>
+自动代理生成器：用来完成代理对象的自动创建功能的。<code>&lt;aop:aspectj-autoproxy/&gt;</code><br>
+通过扫描找到@Aspect 定义的切面类，再由切面类根据切入点找到目标类的目标方法，再由通知类型找到切入的时间点，最终创建出目标类的代理对象，有额外的增强的功能。<br>
+6、测试</p>
+<pre><code>public void test01(){
+        String config = &quot;applicationContext.xml&quot;;
+        ApplicationContext ac = new ClassPathXmlApplicationContext(config);
+        SomeService someService = (SomeService) ac.getBean(&quot;someServiceImpl&quot;);
+        //someService的类名
+        System.out.println(&quot;someService类名:&quot;+someService.getClass().getName());
+        someService.doSome(&quot;张三&quot;,21);
+    }
+</code></pre>
+<p>结果：</p>
+<pre><code>someService类名:com.sun.proxy.$Proxy15
+新增日志，当前时间为Sun Jul 11 18:12:22 GMT+08:00 2021
+=====执行了业务方法=======
+</code></pre>
+<p>由someService类名可知，目标接口使用了动态代理，从spring容器中获取的目标对象是经过aspect修改后的代理对象。</p>
+<h4 id="343-通知类型">3.4.3 通知类型</h4>
+<p>1、@Before 前置通知-方法有 JoinPoint 参数（非必须）<br>
+每个通知类型都有JoinPoint参数，若还包含其他参数，JoinPoint参数要放在第一个位置，通过该参数的get方法可以得到切入点表达式，方法签名、目标方法的参数等。<br>
+功能方法：（1）public（2）无返回值（3）可无参数</p>
+<p>2、@AfterReturning 后置通知-注解有 returning 属性（非必须）<br>
+由于在方法执行之后执行，业务可能会有返回值，所以该通知有一个注解属性：returning,用于接收前面业务执行结果作为参数，跟传参类似，有引用传参和值传参之分。<br>
+功能方法：（1）public（2）无返回值（3）方法有参数时推荐Object（非必须）<br>
+部分代码：</p>
+<pre><code>@AfterReturning(value = &quot;execution(* com.csy.ba01.SomeServiceImpl.doStudent(..))&quot;,returning = &quot;result&quot;)
+    public void myafterreturning1(Object result){
+        //引用传参，业务方法执行后返回值改变
+        Student res=(Student) result;
+        res.setName(&quot;李四&quot;);
+        res.setAge(19);
+        System.out.println(&quot;后置通知修改目标结果后result=&quot;+res);
+        //值传参
+        result = new Student(&quot;李四&quot;,18);
+        System.out.println(&quot;后置通知修改目标结果后result=&quot;+result);
+    }   
+</code></pre>
+<p>returning的值必须与方法中的参数名一致</p>
+<pre><code>//测试片段
+Student res = proxy.doStudent(&quot;张三&quot;,18);
+System.out.println(&quot;最终得到的结果=&quot;+res);
+</code></pre>
+<p>在引用传参中，res结果变为李四，值传参仍为张三不变。<br>
+总结就是基本数据类型传递的是形参，形参不影响实参；引用数据类型传递的是地址，形参在方法内被改变，实参也会改变，若在方法内实例化了同名对象，即产生了新的地址，对这个同名对象的改变，由于地址不一样，所以不影响原来的对象。</p>
+<p>3、@Around 环绕通知-增强方法有 ProceedingJoinPoint参数（必须）<br>
+特点：<br>
+（1）它是功能最强的通知<br>
+（2）在目标方法的前和后都能增强功能。<br>
+（3）可控制目标方法是否被调用执行<br>
+（4）可修改原来的目标方法的执行结果。 影响最后的调用结果<br>
+功能方法：<br>
+（1）public<br>
+（2）方法有参数，固定的参数类型 ProceedingJoinPoint，  ProceedingJoinPoint类中有get方法跟前面的JoinPoint一样、proceedingJoinPoint.proceed()等同于动态代理里的method.invoke()，用来执行目标方法的。<br>
+（3）必须有一个返回值，推荐使用Object，为目标方法返回的结果，可修改。<br>
+环绕通知：等同于jdk动态代理的InvocationHandler接口，经常做事务， 在目标方法之前开启事务，执行目标方法， 在目标方法之后提交事务。</p>
+<pre><code>//代码示例
+@Around(value = &quot;execution(* com.csy.ba01.SomeServiceImpl.domore(..))&quot;)
+    public Object myaround(ProceedingJoinPoint pjp) throws Throwable {
+        Object args[] = pjp.getArgs();
+        String res=&quot;&quot;;
+        if((int)args[0]&gt;0){
+            res = (String)pjp.proceed();
+        }
+        else{
+            res = &quot;error&quot;;
+        }
+        return res;
+    }
+</code></pre>
+<p>4、@AfterThrowing 异常通知-注解中有 throwing 属性</p>
+<pre><code>try {
+		
+}catch(Exception e){
+	//此处写的便是异常通知对应的内容		
+}finally {
+		
+}
+</code></pre>
+<pre><code>//代码示例
+@AfterThrowing(value = &quot;execution(* *..SomeServiceImpl.doSecond(..))&quot;,
+            throwing = &quot;ex&quot;)
+    public void myAfterThrowing(Exception ex) {
+        System.out.println(&quot;异常通知：方法发生异常时，执行：&quot;+ex.getMessage());
+        //发送邮件，短信，通知开发人员
+    }
+</code></pre>
+<p>5、@After 最终通知</p>
+<pre><code>try {
+		
+}catch(Exception e){
+			
+}finally {
+	//此处写的便是最终通知对应的内容
+}
+</code></pre>
+<h4 id="344-一点补充">3.4.4 一点补充</h4>
+<p>1、@Pointcut用法<br>
+定义和管理切入点， 如果你的项目中有多个切入点表达式是重复的，可以复用的，可以使用@Pointcut。</p>
+<pre><code>//代码示例
+@Pointcut(&quot;execution(* com.csy.ba01.SomeServiceImpl.domore(..))&quot;)
+    private void mypt(){
+        //什么都不写
+    }
+</code></pre>
+<p>此处mypt()便可替代切入点表达式execution(* com.csy.ba01.SomeServiceImpl.domore(..))了。@Around(&quot;mypt()&quot;)便等价之前。<br>
+2、cglib的使用<br>
+（1）通常情况下，有接口的一般spring会自动调用jdk动态代理，当没有接口时会使用cglib<br>
+（2）若想要在当前有接口的情况下使用cglib，可在自动代理生成器加入：<code>proxy-target-class=&quot;true&quot;</code></p>
 
               </div>
               <div class="toc-container">
@@ -243,6 +479,26 @@ xml 的缺点是：编写麻烦，效率低，大型项目过于复杂。</p>
 </li>
 </ul>
 </li>
+<li><a href="#%E7%AC%AC%E4%B8%89%E7%AB%A0-aop%E9%9D%A2%E5%90%91%E5%88%87%E9%9D%A2%E7%BC%96%E7%A8%8B"><strong>第三章、AOP面向切面编程</strong></a>
+<ul>
+<li><a href="#31-%E4%B8%8D%E4%BD%BF%E7%94%A8aop%E7%9A%84%E5%BC%80%E5%8F%91%E6%96%B9%E5%BC%8F"><strong>3.1 不使用aop的开发方式</strong></a>
+<ul>
+<li><a href="#311-%E4%BC%A0%E7%BB%9F%E7%9A%84%E5%BC%80%E5%8F%91">3.1.1、传统的开发</a></li>
+<li><a href="#312-%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86">3.1.2、动态代理</a></li>
+</ul>
+</li>
+<li><a href="#32-aop%E7%AE%80%E4%BB%8B"><strong>3.2、AOP简介</strong></a></li>
+<li><a href="#33-aop%E7%BC%96%E7%A8%8B%E6%9C%AF%E8%AF%AD"><strong>3.3、AOP编程术语</strong></a></li>
+<li><a href="#34-aspectj-%E5%AF%B9-aop-%E7%9A%84%E5%AE%9E%E7%8E%B0"><strong>3.4 AspectJ 对 AOP 的实现</strong></a>
+<ul>
+<li><a href="#341-aspectj-%E7%9A%84%E5%88%87%E5%85%A5%E7%82%B9%E8%A1%A8%E8%BE%BE%E5%BC%8F">3.4.1 AspectJ 的切入点表达式</a></li>
+<li><a href="#342-%E4%BD%BF%E7%94%A8aspectj%E5%AE%9E%E7%8E%B0aop%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%AD%A5%E9%AA%A4">3.4.2 使用Aspectj实现aop的基本步骤</a></li>
+<li><a href="#343-%E9%80%9A%E7%9F%A5%E7%B1%BB%E5%9E%8B">3.4.3 通知类型</a></li>
+<li><a href="#344-%E4%B8%80%E7%82%B9%E8%A1%A5%E5%85%85">3.4.4 一点补充</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -255,7 +511,7 @@ xml 的缺点是：编写麻烦，效率低，大型项目过于复杂。</p>
         
           <div class="next-post">
             <div class="next">下一篇</div>
-            <a href="http://localhost:4000/post/java-chong-xin-xie-sort-han-shu-de-jie-ding-fang-fa/">
+            <a href="https://caosy-pmt.github.io/post/java-chong-xin-xie-sort-han-shu-de-jie-ding-fang-fa/">
               <h3 class="post-title">
                 Java重新写sort函数
               </h3>
@@ -267,7 +523,7 @@ xml 的缺点是：编写麻烦，效率低，大型项目过于复杂。</p>
 
         <div class="site-footer">
   Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
-  <a class="rss" href="http://localhost:4000/atom.xml" target="_blank">
+  <a class="rss" href="https://caosy-pmt.github.io/atom.xml" target="_blank">
     <i class="ri-rss-line"></i> RSS
   </a>
 </div>
