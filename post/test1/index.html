@@ -3,7 +3,7 @@
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title># Spring学习随笔 | Gridea</title>
-<link rel="shortcut icon" href="https://caosy-pmt.github.io/favicon.ico?v=1626017715089">
+<link rel="shortcut icon" href="https://caosy-pmt.github.io/favicon.ico?v=1626272039773">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
 <link rel="stylesheet" href="https://caosy-pmt.github.io/styles/main.css">
 <link rel="alternate" type="application/atom+xml" title="# Spring学习随笔 | Gridea - Atom Feed" href="https://caosy-pmt.github.io/atom.xml">
@@ -24,7 +24,7 @@
       <div class="main-content">
         <div class="site-header">
   <a href="https://caosy-pmt.github.io">
-  <img class="avatar" src="https://caosy-pmt.github.io/images/avatar.png?v=1626017715089" alt="">
+  <img class="avatar" src="https://caosy-pmt.github.io/images/avatar.png?v=1626272039773" alt="">
   </a>
   <h1 class="site-title">
     Gridea
@@ -84,7 +84,7 @@
                 2021-07-09
               </span>
               <span>
-                20 min read
+                34 min read
               </span>
               
             </div>
@@ -450,6 +450,298 @@ System.out.println(&quot;最终得到的结果=&quot;+res);
 2、cglib的使用<br>
 （1）通常情况下，有接口的一般spring会自动调用jdk动态代理，当没有接口时会使用cglib<br>
 （2）若想要在当前有接口的情况下使用cglib，可在自动代理生成器加入：<code>proxy-target-class=&quot;true&quot;</code></p>
+<p>Spring配置文件中指定其他配置文件路径，要使用<code>classpath:xxx</code>。</p>
+<h2 id="第四章-spring和mybatis的集成"><strong>第四章、spring和mybatis的集成</strong></h2>
+<h3 id="411-创建maven项目">4.1.1 创建maven项目</h3>
+<h3 id="412-加入maven依赖">4.1.2 加入maven依赖</h3>
+<pre><code>&lt;!--spring核心ioc--&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-context&lt;/artifactId&gt;
+    &lt;version&gt;5.2.5.RELEASE&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;!--做spring事务用到的--&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-tx&lt;/artifactId&gt;
+    &lt;version&gt;5.2.5.RELEASE&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-jdbc&lt;/artifactId&gt;
+    &lt;version&gt;5.2.5.RELEASE&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;!--mybatis依赖--&gt;
+    &lt;dependency&gt;
+    &lt;groupId&gt;org.mybatis&lt;/groupId&gt;
+    &lt;artifactId&gt;mybatis&lt;/artifactId&gt;
+    &lt;version&gt;3.5.1&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;!--mybatis和spring集成的依赖,--&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.mybatis&lt;/groupId&gt;
+    &lt;artifactId&gt;mybatis-spring&lt;/artifactId&gt;
+    &lt;version&gt;1.3.1&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;!--mysql驱动--&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;mysql&lt;/groupId&gt;
+    &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;
+    &lt;version&gt;5.1.9&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;!--阿里公司的数据库连接池--&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.alibaba&lt;/groupId&gt;
+    &lt;artifactId&gt;druid&lt;/artifactId&gt;
+    &lt;version&gt;1.1.12&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+<pre><code>&lt;!--build-插件标签--&gt;
+&lt;!--目的是把src/main/java目录中的xml文件包含到输出结果中。输出到classes目录中--&gt;
+    &lt;resources&gt;
+      &lt;resource&gt;
+        &lt;directory&gt;src/main/java&lt;/directory&gt;&lt;!--所在的目录--&gt;
+        &lt;includes&gt;&lt;!--包括目录下的.properties,.xml 文件都会扫描到--&gt;
+          &lt;include&gt;**/*.properties&lt;/include&gt;
+          &lt;include&gt;**/*.xml&lt;/include&gt;
+        &lt;/includes&gt;
+        &lt;filtering&gt;false&lt;/filtering&gt;
+      &lt;/resource&gt;
+    &lt;/resources&gt;
+</code></pre>
+<h3 id="413-创建实体类">4.1.3 创建实体类</h3>
+<h3 id="414-创建dao接口及相应的mapper文件">4.1.4 创建dao接口及相应的mapper文件</h3>
+<h3 id="415-配置mybatis主配置文件">4.1.5 配置mybatis主配置文件</h3>
+<p>模板</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+&lt;!DOCTYPE configuration
+      PUBLIC &quot;-//mybatis.org//DTD Config 3.0//EN&quot;
+      &quot;http://mybatis.org/dtd/mybatis-3-config.dtd&quot;&gt;
+&lt;configuration&gt;
+
+  &lt;!--settings：控制mybatis全局行为--&gt;
+  &lt;settings&gt;
+      &lt;!--设置mybatis输出日志--&gt;
+      &lt;setting name=&quot;logImpl&quot; value=&quot;STDOUT_LOGGING&quot;/&gt;
+  &lt;/settings&gt;
+
+  &lt;!--设置别名--&gt;
+  &lt;typeAliases&gt;
+      &lt;!--name:实体类所在的包名
+          表示com.csy.entity包中的列名就是别名
+          你可以使用Student表示com.csy.entity.Student
+      --&gt;
+      &lt;package name=&quot;com.csy.entity&quot;/&gt;
+  &lt;/typeAliases&gt;
+
+  &lt;!-- sql mapper(sql映射文件)的位置--&gt;
+  &lt;mappers&gt;
+      &lt;!--name：是包名， 这个包中的所有mapper.xml一次都能加载--&gt;
+      &lt;package name=&quot;com.csy.dao&quot;/&gt;
+  &lt;/mappers&gt;
+&lt;/configuration&gt;
+</code></pre>
+<h3 id="416-创建service接口及其实现类实现类里有dao属性">4.1.6 创建service接口及其实现类，实现类里有dao属性</h3>
+<h3 id="417-配置spring主配置文件声明mybatis的对象由spring来创建">4.1.7 配置Spring主配置文件：声明mybatis的对象由spring来创建</h3>
+<p>1、数据源DataSource；<br>
+2、SqlSessionFactory；<br>
+3、dao对象，定义 Mapper 扫描配置器 MapperScannerConfigure，自动生成代理对象；<br>
+4、service 对象 ，向 Service 注入 Mapper生成的dao代理对象，dao对象的默认名称是 接口名首字母小写。<br>
+模板</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
+      xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+      xmlns:context=&quot;http://www.springframework.org/schema/context&quot;
+      xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans
+      http://www.springframework.org/schema/beans/spring-beans.xsd
+      http://www.springframework.org/schema/context
+      https://www.springframework.org/schema/context/spring-context.xsd&quot;&gt;
+   &lt;!--
+          把数据库的配置信息，写在一个独立的文件，编译修改数据库的配置内容
+          spring知道jdbc.properties文件的位置
+       --&gt;
+   &lt;context:property-placeholder location=&quot;classpath:jdbc.properties&quot; /&gt;
+
+   &lt;!--声明数据源DataSource, 作用是连接数据库的--&gt;
+   &lt;bean id=&quot;myDataSource&quot; class=&quot;com.alibaba.druid.pool.DruidDataSource&quot;
+         init-method=&quot;init&quot; destroy-method=&quot;close&quot;&gt;
+       &lt;!--set注入给DruidDataSource提供连接数据库信息 --&gt;
+       &lt;!--    使用属性配置文件中的数据，语法 ${key} --&gt;
+       &lt;property name=&quot;url&quot; value=&quot;${jdbc.url}&quot; /&gt;&lt;!--setUrl()--&gt;
+       &lt;property name=&quot;username&quot; value=&quot;${jdbc.username}&quot;/&gt;
+       &lt;property name=&quot;password&quot; value=&quot;${jdbc.passwd}&quot; /&gt;
+       &lt;property name=&quot;maxActive&quot; value=&quot;${jdbc.max}&quot; /&gt;
+   &lt;/bean&gt;
+
+   &lt;!--声明的是mybatis中提供的SqlSessionFactoryBean类，这个类内部创建SqlSessionFactory的SqlSessionFactory  sqlSessionFactory = new ..--&gt;
+   &lt;bean id=&quot;sqlSessionFactory&quot; class=&quot;org.mybatis.spring.SqlSessionFactoryBean&quot;&gt;
+       &lt;!--set注入，把数据库连接池付给了dataSource属性--&gt;
+       &lt;property name=&quot;dataSource&quot; ref=&quot;myDataSource&quot; /&gt;
+       &lt;!--mybatis主配置文件的位置
+          configLocation属性是Resource类型，读取配置文件
+          它的赋值，使用value，指定文件的路径，使用classpath:表示文件的位置
+       --&gt;
+       &lt;property name=&quot;configLocation&quot; value=&quot;classpath:mybatis.xml&quot; /&gt;
+   &lt;/bean&gt;
+
+   &lt;!--创建dao对象，使用SqlSession的getMapper（StudentDao.class）
+       MapperScannerConfigurer:在内部调用getMapper()生成每个dao接口的代理对象。--&gt;
+   &lt;bean class=&quot;org.mybatis.spring.mapper.MapperScannerConfigurer&quot;&gt;
+       &lt;!--指定SqlSessionFactory对象的id--&gt;
+       &lt;property name=&quot;sqlSessionFactoryBeanName&quot; value=&quot;sqlSessionFactory&quot; /&gt;
+       &lt;!--指定包名， 包名是dao接口所在的包名。
+           MapperScannerConfigurer会扫描这个包中的所有接口，把每个接口都执行
+           一次getMapper()方法，得到每个接口的dao对象。
+           创建好的dao对象放入到spring的容器中的。 dao对象的默认名称是 接口名首字母小写
+       --&gt;
+       &lt;property name=&quot;basePackage&quot; value=&quot;com.csy.dao&quot;/&gt;
+   &lt;/bean&gt;
+
+   &lt;!--声明service--&gt;
+   &lt;bean id=&quot;studentService&quot; class=&quot;com.csy.service.Impl.StudentServiceImpl&quot;&gt;
+       &lt;property name=&quot;studentDao&quot; ref=&quot;studentDao&quot; /&gt;
+   &lt;/bean&gt;
+&lt;/beans&gt;
+</code></pre>
+<h3 id="418-测试">4.1.8 测试</h3>
+<p>spring和mybatis整合在一起使用，事务是自动提交的。 无需执行SqlSession.commit();</p>
+<hr>
+<h2 id="第五章-spring事务"><strong>第五章 Spring事务</strong></h2>
+<h3 id="51spring-的事务管理"><strong>5.1Spring 的事务管理</strong></h3>
+<p>事务原本是数据库中的概念，在 Dao 层。但一般情况下，需要将事务提升到业务层，<br>
+即 Service 层。这样做是为了能够使用事务的特性来管理具体的业务。<br>
+在 Spring 中通常可以通过以下两种方式来实现对事务的管理：<br>
+（1）使用 Spring 的事务注解管理事务<br>
+（2）使用 AspectJ 的 AOP 配置管理事务</p>
+<h3 id="52-事务管理api"><strong>5.2 事务管理API</strong></h3>
+<h4 id="521-事务管理器接口">5.2.1 事务管理器接口</h4>
+<p>事务管理器是 PlatformTransactionManager 接口对象。其主要用于完成事务的提交、回<br>
+滚，及获取事务的状态信息。</p>
+<p>1、常用的两个实现类<br>
+➢ DataSourceTransactionManager：使用 JDBC 或 MyBatis 进行数据库操作时使用。<br>
+➢ HibernateTransactionManager：使用 Hibernate 进行持久化数据时使用。</p>
+<p>2、Spring 的回滚方式<br>
+Spring 事务的默认回滚方式是：发生运行时异常和 error 时回滚，发生受查(编译不通过)异常时<br>
+提交。不过，对于受查异常，程序员也可以手工设置其回滚方式。</p>
+<p>3、错误和异常<br>
+Error 是程序在运行过程中出现的无法处理的错误，比如 OutOfMemoryError、<br>
+ThreadDeath、NoSuchMethodError 等。当这些错误发生时，程序是无法处理（捕获或抛出）<br>
+的，JVM 一般会终止线程。<br>
+运行时异常，是 RuntimeException 类或其子类，如，NullPointerException、ArrayIndexOutOfBoundsException，IllegalArgumentException 等。<br>
+受查异常，也叫编译时异常，即在代码编写时要求必须捕获或抛出的异常，若不处理，<br>
+则无法通过编译。如 SQLException，ClassNotFoundException，IOException 等都属于受查异常。<br>
+程序员在定义异常时，只要未明确声明定义为 RuntimeException 的子类，那么定义的就是受查异常。</p>
+<h4 id="522-事务定义接口">5.2.2 事务定义接口</h4>
+<p>事务定义接口 TransactionDefinition 中定义了事务描述相关的三类常量：事务隔离级别、<br>
+事务传播行为、事务默认超时时限，及对它们的操作。<br>
+1、定义了五个事务隔离级别常量<br>
+这些常量均是以 ISOLATION_开头。即形如 ISOLATION_XXX。<br>
+➢ DEFAULT：采用 DB 默认的事务隔离级别。MySql 的默认为 REPEATABLE_READ； Oracle<br>
+默认为 READ_COMMITTED。<br>
+➢ READ_UNCOMMITTED：读未提交。未解决任何并发问题。<br>
+➢ READ_COMMITTED：读已提交。解决脏读，存在不可重复读与幻读。<br>
+➢ REPEATABLE_READ：可重复读。解决脏读、不可重复读，存在幻读<br>
+➢ SERIALIZABLE：串行化。不存在并发问题。</p>
+<p>2、 定义了七个事务传播行为常量<br>
+所谓事务传播行为是指，处于不同事务中的方法在相互调用时，执行期间事务的维护情<br>
+况。如，A 事务中的方法 doSome()调用 B 事务中的方法 doOther()，在调用执行期间事务的<br>
+维护情况，就称为事务传播行为。事务传播行为是加在方法上的。<br>
+事务传播行为常量都是以 PROPAGATION_ 开头，形如 PROPAGATION_XXX。<br>
+PROPAGATION_REQUIRED<br>
+PROPAGATION_REQUIRES_NEW<br>
+PROPAGATION_SUPPORTS</p>
+<p>PROPAGATION_MANDATORY<br>
+PROPAGATION_NESTED<br>
+PROPAGATION_NEVER<br>
+PROPAGATION_NOT_SUPPORTED<br>
+仅前面三个常用。<br>
+（1） PROPAGATION_REQUIRED：（最常用）<br>
+指定的方法必须在事务内执行。若当前存在事务，就加入到当前事务中；若当前没有事<br>
+务，则创建一个新事务。<br>
+（2）PROPAGATION_SUPPORTS<br>
+指定的方法支持当前事务，但若当前没有事务，也可以以非事务方式执行。<br>
+（3）PROPAGATION_REQUIRES_NEW<br>
+总是新建一个事务，若当前存在事务，就将当前事务挂起，直到新事务执行完毕。</p>
+<p>3、定义了默认事务超时时限<br>
+常量 TIMEOUT_DEFAULT 定义了事务底层默认的超时时限，sql 语句的执行时长。<br>
+注意，事务的超时时限起作用的条件比较多，且超时的时间计算点较复杂。所以，该<br>
+值一般就使用默认值即可。</p>
+<hr>
+<h3 id="53-程序举例流程"><strong>5.3 程序举例流程</strong></h3>
+<p>大致流程与第四章类似，部分添加：<br>
+1、异常类自定义：</p>
+<pre><code>public class NotExistException extends RuntimeException{
+    public NotExistException(){
+        super();
+    }
+    public  NotExistException(String msg){
+        super(msg);
+    }
+}
+</code></pre>
+<p>调用：<code>throw new NotExistException(&quot;xxx不存在&quot;)</code>。</p>
+<p>2、注解法使用spring的事务处理----适合中小项目<br>
+（1）声明事务管理器</p>
+<pre><code>    &lt;!--1. 声明事务管理器--&gt;
+    &lt;bean id=&quot;transactionManager&quot; class=&quot;org.springframework.jdbc.datasource.DataSourceTransactionManager&quot;&gt;
+        &lt;!--连接的数据库， 指定数据源--&gt;
+        &lt;property name=&quot;dataSource&quot; ref=&quot;myDataSource&quot; /&gt;
+    &lt;/bean&gt;
+</code></pre>
+<p>（2）开启事务注解驱动</p>
+<pre><code>    &lt;!--2. 开启事务注解驱动，告诉spring使用注解管理事务，创建代理对象。
+           transaction-manager:事务管理器对象的id
+    --&gt;
+    &lt;tx:annotation-driven transaction-manager=&quot;transactionManager&quot; /&gt;
+</code></pre>
+<p>（3）在方法上方中注解上</p>
+<pre><code>@Transactional(propagation = Propagation.REQUIRED,
+            rollbackFor = {NotExistException.class,NotEnoughException.class})
+    public void buy(Integer goosId, Integer amount) {
+</code></pre>
+<p>（4）注解中的属性<br>
+➢ propagation：用于设置事务传播属性。该属性类型为 Propagation 枚举，默认值为<br>
+Propagation.REQUIRED。<br>
+➢ isolation：用于设置事务的隔离级别。该属性类型为 Isolation 枚举，默认值为<br>
+Isolation.DEFAULT。<br>
+➢ readOnly：用于设置该方法对数据库的操作是否是只读的。该属性为 boolean，默认值为 false。<br>
+➢ timeout：用于设置本操作与数据库连接的超时时限。单位为秒，类型为 int，默认值为-1，即没有时限。<br>
+➢ rollbackFor：指定需要回滚的异常类。类型为 Class[]，默认值为空数组。当然，若只有一个异常类时，可以不使用数组。<br>
+➢ rollbackForClassName：指定需要回滚的异常类类名。类型为 String[]，默认值为空数组。当然，若只有一个异常类时，可以不使用数组。<br>
+➢ noRollbackFor：指定不需要回滚的异常类。类型为 Class[]，默认值为空数组。当然，若只有一个异常类时，可以不使用数组。<br>
+➢ noRollbackForClassName：指定不需要回滚的异常类类名。类型为 String[]，默认值为空数组。当然，若只有一个异常类时，可以不使用数组。</p>
+<p>需要注意的是，@Transactional 若用在方法上，只能用于 public 方法上。@Transactional 若用在类上，表示该类中所有方法执行时都会织入事务。</p>
+<p>3、使用aop添加事务<br>
+（1）加入maven依赖</p>
+<pre><code>&lt;dependency&gt;
+      &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+      &lt;artifactId&gt;spring-aspects&lt;/artifactId&gt;
+      &lt;version&gt;5.2.5.RELEASE&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+<p>（2）声明事务管理器</p>
+<pre><code>&lt;!--1. 声明事务管理器--&gt;
+&lt;bean id=&quot;transactionManager&quot; class=&quot;org.springframework.jdbc.datasource.DataSourceTransactionManager&quot;&gt;
+    &lt;!--连接的数据库， 指定数据源--&gt;
+    &lt;property name=&quot;dataSource&quot; ref=&quot;myDataSource&quot; /&gt;
+&lt;/bean&gt;
+</code></pre>
+<p>（3）配置事务通知（切入时机+方法名称）<br>
+为事务通知设置相关属性（不写就为默认值，与注解一致）。用于指定要将事务以什么方式织入给哪些方法。</p>
+<pre><code>&lt;tx:advice id=&quot;myadvice&quot; transaction-manager=&quot;transactionManager&quot; &gt;
+    &lt;tx:attributes&gt;
+        &lt;tx:method name=&quot;buy&quot; /&gt;
+            &lt;!--使用通配符，指定很多的方法--&gt;
+        &lt;tx:method name=&quot;add*&quot; propagation=&quot;REQUIRES_NEW&quot; /&gt;
+    &lt;/tx:attributes&gt;
+&lt;/tx:advice&gt;
+</code></pre>
+<p>（4）配置增强器---关联组合事务通知和切入点表达式</p>
+<pre><code>&lt;aop:config&gt;
+    &lt;aop:pointcut  expression=&quot;execution(* *..service..*.*(..))&quot; id=&quot;servicePt&quot;/&gt;
+    &lt;aop:advisor advice-ref=&quot;myadvice&quot; pointcut-ref=&quot;servicePt&quot;/&gt;
+&lt;/aop:config&gt;
+</code></pre>
 
               </div>
               <div class="toc-container">
@@ -497,6 +789,30 @@ System.out.println(&quot;最终得到的结果=&quot;+res);
 <li><a href="#344-%E4%B8%80%E7%82%B9%E8%A1%A5%E5%85%85">3.4.4 一点补充</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li><a href="#%E7%AC%AC%E5%9B%9B%E7%AB%A0-spring%E5%92%8Cmybatis%E7%9A%84%E9%9B%86%E6%88%90"><strong>第四章、spring和mybatis的集成</strong></a>
+<ul>
+<li><a href="#411-%E5%88%9B%E5%BB%BAmaven%E9%A1%B9%E7%9B%AE">4.1.1 创建maven项目</a></li>
+<li><a href="#412-%E5%8A%A0%E5%85%A5maven%E4%BE%9D%E8%B5%96">4.1.2 加入maven依赖</a></li>
+<li><a href="#413-%E5%88%9B%E5%BB%BA%E5%AE%9E%E4%BD%93%E7%B1%BB">4.1.3 创建实体类</a></li>
+<li><a href="#414-%E5%88%9B%E5%BB%BAdao%E6%8E%A5%E5%8F%A3%E5%8F%8A%E7%9B%B8%E5%BA%94%E7%9A%84mapper%E6%96%87%E4%BB%B6">4.1.4 创建dao接口及相应的mapper文件</a></li>
+<li><a href="#415-%E9%85%8D%E7%BD%AEmybatis%E4%B8%BB%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6">4.1.5 配置mybatis主配置文件</a></li>
+<li><a href="#416-%E5%88%9B%E5%BB%BAservice%E6%8E%A5%E5%8F%A3%E5%8F%8A%E5%85%B6%E5%AE%9E%E7%8E%B0%E7%B1%BB%E5%AE%9E%E7%8E%B0%E7%B1%BB%E9%87%8C%E6%9C%89dao%E5%B1%9E%E6%80%A7">4.1.6 创建service接口及其实现类，实现类里有dao属性</a></li>
+<li><a href="#417-%E9%85%8D%E7%BD%AEspring%E4%B8%BB%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%A3%B0%E6%98%8Emybatis%E7%9A%84%E5%AF%B9%E8%B1%A1%E7%94%B1spring%E6%9D%A5%E5%88%9B%E5%BB%BA">4.1.7 配置Spring主配置文件：声明mybatis的对象由spring来创建</a></li>
+<li><a href="#418-%E6%B5%8B%E8%AF%95">4.1.8 测试</a></li>
+</ul>
+</li>
+<li><a href="#%E7%AC%AC%E4%BA%94%E7%AB%A0-spring%E4%BA%8B%E5%8A%A1"><strong>第五章 Spring事务</strong></a>
+<ul>
+<li><a href="#51spring-%E7%9A%84%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86"><strong>5.1Spring 的事务管理</strong></a></li>
+<li><a href="#52-%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86api"><strong>5.2 事务管理API</strong></a>
+<ul>
+<li><a href="#521-%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86%E5%99%A8%E6%8E%A5%E5%8F%A3">5.2.1 事务管理器接口</a></li>
+<li><a href="#522-%E4%BA%8B%E5%8A%A1%E5%AE%9A%E4%B9%89%E6%8E%A5%E5%8F%A3">5.2.2 事务定义接口</a></li>
+</ul>
+</li>
+<li><a href="#53-%E7%A8%8B%E5%BA%8F%E4%B8%BE%E4%BE%8B%E6%B5%81%E7%A8%8B"><strong>5.3 程序举例流程</strong></a></li>
 </ul>
 </li>
 </ul>
